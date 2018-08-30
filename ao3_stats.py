@@ -15,6 +15,10 @@ from bs4 import BeautifulSoup
 
 
 
+####################
+##  SAMPLE USAGE  ##
+####################
+
 # dictionary of fandom names + url (Some random and not-so-random fandoms)
 fandoms = {"Captive Prince": "Captive%20Prince%20-%20C*d*%20S*d*%20Pacat",
            "Fullmetal Alchemist": "Fullmetal%20Alchemist%20-%20All%20Media%20Types",
@@ -26,10 +30,18 @@ fandoms = {"Captive Prince": "Captive%20Prince%20-%20C*d*%20S*d*%20Pacat",
 query_type = "work"
 query = fandoms["(500) Days of Summer"]
 
+summer500 = get_query_items(query_type, query)
+summer500_hits_desc = sort(list(summer500.items()), key = lambda x: x.hits, reverse == True)
+
+
+##################
+##   FUNCTION   ##
+##################
+
 # get data of works available in blurb
 #   Returns dictionary of works (class Work) indexed by ids
 #   TODO: CURRENTLY ON WORKS FOR WORKS NOT BOOKMARKS (to fix)
-def get_works_stats(query, query_type):
+def get_query_items(query, query_type):
 
     # general stuff
     urlformats = {"main": "http://archiveofourown.org/",
@@ -107,6 +119,10 @@ def get_works_stats(query, query_type):
 
 
 
+##################
+##   CLASSES   ###
+##################
+
 class Work:
 
     def __init__(self, data):
@@ -125,18 +141,14 @@ class Work:
 
         # get and set authors
         authors = heading.find_all(rel = re.compile("author"))
-        self.authors = []
-        for author in authors:
-            self.authors.append(str(author.contents[0]))
+        self.authors = list(map(lambda x: str(x.contents[0]), authors))
 
         # get and set update date
-        self.date = datetime.datetime.strptime(data.find("p",
-                                                         {"class": "datetime"}).contents[0],
+        self.date = datetime.datetime.strptime(data.find("p", {"class": "datetime"}).contents[0],
                                                "%d %b %Y")
 
         # get and set summary
-        self.summary = str(data.find("blockquote",
-                                     {"class": "userstuff summary"}).p.contents[0])
+        self.summary = str(data.find("blockquote", {"class": "userstuff summary"}).p.contents[0])
 
 
         ###########
@@ -177,8 +189,7 @@ class Work:
 
         # function to corral multiple tags per optional category into list
         def get_opt_tags(tag_type):
-            matched_tags = opt_tags_data.find_all("li",
-                                                  {"class": re.compile(tag_type)})
+            matched_tags = opt_tags_data.find_all("li", {"class": re.compile(tag_type)})
             return list(map(lambda x: str(x.a.contents[0]), matched_tags))
 
         # set optional tags
@@ -220,8 +231,7 @@ class Work:
         self.bookmarks = get_stats("bookmarks", to_int = True, deep = True)
 
         # set chapter counts
-        chapter_stats = re.findall(re.compile('([0-9]+?)/([0-9\?]+)'),
-                                   get_stats("chapters"))
+        chapter_stats = re.findall(re.compile('([0-9]+?)/([0-9\?]+)'), get_stats("chapters"))
         self.chapters, self.total_chapters = map(lambda x: x if x == '?' else int(x.replace(',', '')),
                                                  chapter_stats[0])
 
