@@ -21,12 +21,14 @@ fandoms = {"Captive Prince": "Captive%20Prince%20-%20C*d*%20S*d*%20Pacat",
            "50 First Dates": "50%20First%20Dates%20(2004)",
            "(500) Days of Summer": "(500)%20Days%20of%20Summer%20(2009)"}
 
+# currently the only query_type handled by the function is "work"
+#   TODO: accommodate "bookmark"
 query_type = "work"
 query = fandoms["(500) Days of Summer"]
 
-# get data of works available on blurb
+# get data of works available in blurb
 #   Returns dictionary of works (class Work) indexed by ids
-#   CURRENTLY ON WORKS FOR WORKS NOT BOOKMARKS
+#   TODO: CURRENTLY ON WORKS FOR WORKS NOT BOOKMARKS (to fix)
 def get_works_stats(query, query_type):
 
     # general stuff
@@ -39,54 +41,54 @@ def get_works_stats(query, query_type):
 
     # instantiate variables
     page_number = 1
-    works = {}
-    number_of_fics = 0
+    items = {}
+    number_of_items = 0
 
     # iterate through all pages
     while True:
         try:
-            # get URL and convert HTML to string
+            # get URL contents and convert HTML to BeautifulSoup object
             url = urlformats["main"] + urlformats["tags"] + query +\
                   urlformats[query_type] + urlformats["page"] + str(page_number)
             page = urllib.request.urlopen(url).read()
             soup = BeautifulSoup(page, "html.parser")
-##            soup.prettify()
             
-            # get total number of fics if we're at page 1
+            # get total number of items if we're at page 1
             if page_number == 1:
                 
-                no_fics = re.findall(re.compile(' [0-9]+? of (.+?) Works in '),
+                # TODO: CURRENTLY ONLY WORKS FOR FICS (to fix to accommodate bookmarks)
+                num_items = re.findall(re.compile(' [0-9]+? of (.+?) Works in '),
                                      soup.find("h2", {"class": "heading"}).contents[0])
 
-                # check if there are fics
+                # check if there are items
                 #   TODO: Modify to accommodate bookmarks
-                if no_fics:
+                if num_items:
                     try:
-                        number_of_fics = int(no_fics[0].replace(',', ''))
-                        if number_of_fics == 0:
-                            print("No works found. Try another search?")
+                        number_of_items = int(num_items[0].replace(',', ''))
+                        if number_of_items == 0:
+                            print("No items found. Try another search?")
                             return
                         else:
-                            print("{} works found".format(number_of_fics))
+                            print("{} items found.\Extracting data now.".format(number_of_items))
                     except:
-                        print("Error parsing total number of works.\nExiting function.")
+                        print("Error parsing total number of items.\nExiting function.")
                         return
 
             # get data of individual work/bookmarks on page into list
             #   TODO: modify to accommodate bookmarks
-            works_on_page = soup.find_all("li", {"class": "work blurb group"})
+            items_on_page = soup.find_all("li", {"class": "work blurb group"})
 
             # if no more returned results, exit loop
             #   TODO: modify to accommodate bookmarks
-            if not len(works_on_page):
+            if not items_on_page:
                 break
 
-            # corral works data into works dictionary, where work id is key and
-            #   everything else is in a sub-dictionary with things like 'hits'
-            #   as keys
+            # corral item data into items dictionary, where item id is key and
+            #   everything else is contained in class Work
             # TODO: modify to accommodate bookmarks
-            for curr_work in works_on_page:
-                works[curr_work['id']] = Work(curr_work)
+            for curr_item in item_on_page:
+                if query_type == "work":
+                    items[curr_item['id']] = Work(curr_item)
 
             # increment page number
             page_number += 1
@@ -96,12 +98,12 @@ def get_works_stats(query, query_type):
             break
 
     # print web scraping results
-    if len(works) >= number_of_fics:
+    if len(items) >= number_of_items:
         print('Completed without errors')
     else:
         print('Completed with errors')
 
-    return works
+    return items
 
 
 
