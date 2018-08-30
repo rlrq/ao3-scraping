@@ -80,12 +80,13 @@ def get_query_items(query, query_type):
 
             # get data of individual work/bookmarks on page into list
             #   TODO: modify to accommodate bookmarks
-            print('Accessing page', page_number)
+            print("Accessing page", page_number)
             items_on_page = soup.find_all("li", {"class": "work blurb group"})
 
             # if no more returned results, exit loop
             #   TODO: modify to accommodate bookmarks
             if not items_on_page:
+                print("No items found on page {}. Exiting function.".format(page_number))
                 break
 
             # corral item data into items dictionary, where item id is key and
@@ -260,6 +261,7 @@ def sort_works(works, field, reverse = False):
 def sort_field(field):
     return lambda x: field.get(x)
 
+# TODO: figure out how to get creative/longer with combinations (e.g. kudos/hits/chapters)
 def ratio(field_1, field_2):
     def sort_ratio(work):
         if not is_num(field_1.get(work)) or not is_num(field_2.get(work)):
@@ -278,7 +280,7 @@ def ratio(field_1, field_2):
 
 # SORTING Example 1
 #   sort works with below 1000 hits in descending order of hit count (i.e. highest hit count first)
-summer500_below1000hits_desc = sort_works(summer500_works,
+summer500_below1000hits_desc = sort_works(summer500_below1000hits,
                                           sort_field(work_hits),
                                           reverse = True)
 print("\nSORT 1: Works with fewer than 1000 hits sorted in descending order of hit count")
