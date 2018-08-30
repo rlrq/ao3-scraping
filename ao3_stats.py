@@ -46,7 +46,7 @@ def get_query_items(query, query_type):
     # instantiate variables
     page_number = 1
     items = {}
-    number_of_items = 0
+    num_items = 0
 
     # iterate through all pages
     while True:
@@ -68,12 +68,12 @@ def get_query_items(query, query_type):
                 #   TODO: Modify to accommodate bookmarks
                 if num_items:
                     try:
-                        number_of_items = int(num_items[0].replace(',', ''))
-                        if number_of_items == 0:
+                        num_items = int(num_items[0].replace(',', ''))
+                        if num_items == 0:
                             print("No items found. Try another search?")
                             return
                         else:
-                            print("{} items found.\nExtracting data now.".format(number_of_items))
+                            print("{} items found.\nExtracting data now.".format(num_items))
                     except:
                         print("Error parsing total number of items.\nExiting function.")
                         return
@@ -104,7 +104,7 @@ def get_query_items(query, query_type):
             break
 
     # print web scraping results
-    if len(items) >= number_of_items:
+    if len(items) >= num_items:
         print('Completed without errors')
     else:
         print('Completed with errors')
@@ -155,6 +155,7 @@ def disp_stats(works, *fields):
 
 # field options for noobs
 #   for those who know how to use lambda, feel free to access attributes directly
+#   ALT: consider using message passing to get appropriate attributes (e.g. Work_instance.get("title") --> <work title>)
 field_options = [work_title, work_id, work_authors, work_fandoms, work_ratings, work_warnings, work_categories,
                  work_status, work_date, work_relationships, work_characters, work_tags, work_summary,
                  work_language, work_words, work_hits, work_comments, work_bookmarks, work_chapters,
