@@ -14,9 +14,10 @@ from ao3_stats_classes import *
 
 
 
-####################
-##   CONDITIONS   ##
-####################
+#################
+##    TYPE     ##
+##  CHECKING   ##
+#################
 
 def dict_to_list(x, obj_name, raise_e = True):
     '''
